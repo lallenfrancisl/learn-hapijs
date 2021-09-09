@@ -26,8 +26,8 @@
     "seed": "ts-node ./src/seed.ts",
     "test": "jest",
     "postgres:start": "docker-compose up -d",
-    "migrate:save": "prisma migrate dev",
-    "migrate:up": "prisma migrate up --auto-approve --create-db",
+    "migrate:save": "prisma migrate dev --create-only",
+    "migrate:up": "prisma migrate dev",
     "prisma:generate": "prisma generate"
   },
   "engines": {
