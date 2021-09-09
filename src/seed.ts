@@ -132,6 +132,47 @@ async function main() {
 
     counter += 1;
   }
+
+  // aggregate for each of the tests
+  for (const test of course.tests) {
+    const results = await prisma.testResult.aggregate({
+      where: {
+        testId: test.id,
+      },
+      avg: { result: true },
+      max: { result: true },
+      min: { result: true },
+      count: true,
+    });
+    console.log(`test: ${test.name} (id: ${test.id})`, results);
+  }
+
+  // Get aggregates for David
+  const davidAggregates = await prisma.testResult.aggregate({
+    where: {
+      student: { email: david.email },
+    },
+    avg: { result: true },
+    max: { result: true },
+    min: { result: true },
+    count: true,
+  });
+  console.log(`David's results (email: ${david.email})`, davidAggregates);
+
+  // Get aggregates for Shakuntala
+  const shakuntalaAggregates = await prisma.testResult.aggregate({
+    where: {
+      student: { email: shakuntala.email },
+    },
+    avg: { result: true },
+    max: { result: true },
+    min: { result: true },
+    count: true,
+  });
+  console.log(
+    `Shakuntala's results (email: ${shakuntala.email})`,
+    shakuntalaAggregates
+  );
 }
 
 main()
