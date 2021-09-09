@@ -47,13 +47,13 @@ async function main() {
           },
         ],
       },
-    },
-    members: {
-      create: {
-        role: "TEACHER",
-        user: {
-          connect: {
-            email: clinjo.email,
+      members: {
+        create: {
+          role: "TEACHER",
+          user: {
+            connect: {
+              email: clinjo.email,
+            },
           },
         },
       },
@@ -69,8 +69,8 @@ async function main() {
       firstName: "Shakuntala",
       lastName: "Devi",
       courses: {
-        role: "STUDENT",
         create: {
+          role: "STUDENT",
           course: {
             connect: { id: course.id },
           },
@@ -139,10 +139,10 @@ async function main() {
       where: {
         testId: test.id,
       },
-      avg: { result: true },
-      max: { result: true },
-      min: { result: true },
-      count: true,
+      _avg: { result: true },
+      _max: { result: true },
+      _min: { result: true },
+      _count: true,
     });
     console.log(`test: ${test.name} (id: ${test.id})`, results);
   }
@@ -152,10 +152,10 @@ async function main() {
     where: {
       student: { email: david.email },
     },
-    avg: { result: true },
-    max: { result: true },
-    min: { result: true },
-    count: true,
+    _avg: { result: true },
+    _max: { result: true },
+    _min: { result: true },
+    _count: true,
   });
   console.log(`David's results (email: ${david.email})`, davidAggregates);
 
@@ -164,10 +164,10 @@ async function main() {
     where: {
       student: { email: shakuntala.email },
     },
-    avg: { result: true },
-    max: { result: true },
-    min: { result: true },
-    count: true,
+    _avg: { result: true },
+    _max: { result: true },
+    _min: { result: true },
+    _count: true,
   });
   console.log(
     `Shakuntala's results (email: ${shakuntala.email})`,
