@@ -44,7 +44,7 @@ async function createUserHandler(req: Hapi.Request, h: Hapi.ResponseToolkit) {
         firstName: payload.firstName,
         lastName: payload.lastName,
         email: payload.email,
-        social: payload.social,
+        social: JSON.stringify(payload.social),
       },
       // specify the fields that you want to be included
       // in the response
