@@ -61,7 +61,7 @@ async function createUserHandler(req: Hapi.Request, h: Hapi.ResponseToolkit) {
       .code(201);
   } catch (error) {
     console.error(error);
-    return h.response({ status: 'fail' });
+    return h.response({ status: 'fail' }).code(400);
   }
 }
 
