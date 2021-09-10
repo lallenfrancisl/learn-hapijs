@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "license": "MIT",
   "dependencies": {
-    "@hapi/boom": "^9.1.0",
-    "@hapi/hapi": "^19.1.1",
+    "@hapi/boom": "^9.1.4",
+    "@hapi/hapi": "^19.2.0",
     "@hapi/joi": "^17.1.1",
     "@prisma/client": "^3.0.1",
     "date-fns": "^2.15.0"
   },
   "devDependencies": {
-    "@types/hapi__hapi": "^19.0.3",
-    "@types/hapi__joi": "^17.1.4",
+    "@types/hapi__hapi": "^19.0.4",
+    "@types/hapi__joi": "^17.1.7",
     "@types/jest": "^26.0.4",
     "@types/node": "^16.7.13",
     "jest": "^26.1.0",
@@ -22,7 +22,7 @@
     "typescript": "^3.9.10"
   },
   "scripts": {
-    "dev": "ts-node-dev --respawn ./src/index.ts",
+    "dev": "ts-node-dev --respawn ./src/server.ts",
     "seed": "ts-node ./src/seed.ts",
     "test": "jest",
     "postgres:start": "docker-compose up -d",
