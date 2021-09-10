@@ -22,7 +22,7 @@
     "typescript": "^3.9.10"
   },
   "scripts": {
-    "dev": "ts-node-dev --respawn ./src/server.ts",
+    "dev": "ts-node-dev --respawn ./src/index.ts",
     "seed": "ts-node ./src/seed.ts",
     "test": "jest",
     "postgres:start": "docker-compose up -d",
