@@ -1,5 +1,18 @@
 import Hapi from '@hapi/hapi';
+import Joi from '@hapi/joi';
 import { UserInput } from '../models/User';
+
+const userInputValidator = Joi.object({
+  firstName: Joi.string().required(),
+  lastName: Joi.string().required(),
+  email: Joi.string().email().required(),
+  social: Joi.object({
+    facebook: Joi.string().optional(),
+    twitter: Joi.string().optional(),
+    github: Joi.string().optional(),
+    website: Joi.string().optional(),
+  }).optional(),
+});
 
 // plugin to instantiate Prisma Client
 const usersPlugin: Hapi.Plugin<null> = {
@@ -11,6 +24,11 @@ const usersPlugin: Hapi.Plugin<null> = {
         method: 'POST',
         path: '/users',
         handler: createUserHandler,
+        options: {
+          validate: {
+            payload: userInputValidator,
+          },
+        },
       },
     ]);
   },
