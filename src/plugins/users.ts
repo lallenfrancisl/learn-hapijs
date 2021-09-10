@@ -1,4 +1,5 @@
 import Hapi from '@hapi/hapi';
+import { UserInput } from '../models/User';
 
 // plugin to instantiate Prisma Client
 const usersPlugin: Hapi.Plugin<null> = {
@@ -44,18 +45,6 @@ async function createUserHandler(req: Hapi.Request, h: Hapi.ResponseToolkit) {
     console.error(error);
     return h.response({ status: 'fail' });
   }
-}
-
-export interface UserInput {
-  firstName: string;
-  lastName: string;
-  email: string;
-  social: {
-    facebook?: string;
-    twitter?: string;
-    github?: string;
-    website?: string;
-  };
 }
 
 export default usersPlugin;
