@@ -1,6 +1,7 @@
 import Hapi from '@hapi/hapi';
 import Joi from '@hapi/joi';
 import { UserInput } from '../models/User';
+import { badImplementation } from '@hapi/boom';
 
 const userInputValidator = Joi.object({
   firstName: Joi.string().required(),
@@ -27,6 +28,18 @@ const usersPlugin: Hapi.Plugin<null> = {
         options: {
           validate: {
             payload: userInputValidator,
+          },
+        },
+      },
+      {
+        method: 'GET',
+        path: '/users/{userId}',
+        handler: getUserHandler,
+        options: {
+          validate: {
+            params: Joi.object({
+              userId: Joi.number().integer(),
+            }),
           },
         },
       },
@@ -62,6 +75,26 @@ async function createUserHandler(req: Hapi.Request, h: Hapi.ResponseToolkit) {
   } catch (error) {
     console.error(error);
     return h.response({ status: 'fail' }).code(400);
+  }
+}
+
+async function getUserHandler(req: Hapi.Request, h: Hapi.ResponseToolkit) {
+  const prisma = req.server.app.prisma;
+  const userId = Number(req.params.userId);
+
+  try {
+    const fetchedUser = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!fetchedUser) return h.response().code(404);
+
+    return h.response(fetchedUser).code(200);
+  } catch (err) {
+    console.error(err);
+    return badImplementation('something went wrong in the server');
   }
 }
 
