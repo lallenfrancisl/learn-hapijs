@@ -24,7 +24,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn ./src/index.ts",
     "seed": "ts-node ./src/seed.ts",
-    "test": "jest",
+    "test": "jest --notify --verbose",
     "postgres:start": "docker-compose up -d",
     "migrate:save": "prisma migrate dev --create-only",
     "migrate:up": "prisma migrate dev",
