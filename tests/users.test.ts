@@ -1,7 +1,7 @@
 import { createServer } from '../src/server';
 import Hapi from '@hapi/hapi';
 
-describe('POST /users - register user', () => {
+describe('ROUTE /users/', () => {
   let server: Hapi.Server;
 
   beforeAll(async () => {
