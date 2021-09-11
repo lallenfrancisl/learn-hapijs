@@ -14,7 +14,7 @@ describe('POST /users - register user', () => {
 
   let userId: number;
 
-  // test if the route works
+  // test if create user works
   test('create user', async () => {
     const res = await server.inject({
       method: 'POST',
@@ -35,7 +35,7 @@ describe('POST /users - register user', () => {
     expect(typeof userId === 'number').toBeTruthy();
   });
 
-  // test if data validation works
+  // test if create user data validation works
   test('register user validation', async () => {
     const response = await server.inject({
       method: 'POST',
@@ -51,5 +51,28 @@ describe('POST /users - register user', () => {
     });
 
     expect(response.statusCode).toEqual(400);
+  });
+
+  // test if getting a user that does not exist returns 404
+  test('get non-existent user details', async () => {
+    const response = await server.inject({
+      method: 'GET',
+      url: '/users/99999999',
+    });
+
+    expect(response.statusCode).toEqual(404);
+  });
+
+  // test if getting an existing user returns the user details
+  test('get user details', async () => {
+    const response = await server.inject({
+      method: 'GET',
+      url: `/users/${userId}`,
+    });
+
+    expect(response.statusCode).toEqual(200);
+
+    const user = JSON.parse(response.payload);
+    expect(user.id).toBe(userId);
   });
 });
