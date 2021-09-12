@@ -76,6 +76,34 @@ describe('ROUTE /users/', () => {
     expect(user.id).toBe(userId);
   });
 
+  // test if updating a non-existent user errs
+  test('update user fails with invalid userId parameter', async () => {
+    const response = await server.inject({
+      method: 'PUT',
+      url: `/users/22283429384`,
+    });
+    expect(response.statusCode).toEqual(400);
+  });
+
+  // test if updating an existing user succeeds
+  test('update user', async () => {
+    const updatedFirstName = 'test-first-name-UPDATED';
+    const updatedLastName = 'test-last-name-UPDATED';
+
+    const response = await server.inject({
+      method: 'PUT',
+      url: `/users/${userId}`,
+      payload: {
+        firstName: updatedFirstName,
+        lastName: updatedLastName,
+      },
+    });
+    expect(response.statusCode).toEqual(200);
+    const user = JSON.parse(response.payload);
+    expect(user.firstName).toEqual(updatedFirstName);
+    expect(user.lastName).toEqual(updatedLastName);
+  });
+
   // test if deleting a user that does not exist errs
   test('delete a user that does not exist', async () => {
     const res = await server.inject({
