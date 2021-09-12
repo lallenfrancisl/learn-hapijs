@@ -5,9 +5,20 @@ import { badImplementation, badRequest } from '@hapi/boom';
 import { Prisma } from '@prisma/client';
 
 const userInputValidator = Joi.object({
-  firstName: Joi.string().required(),
-  lastName: Joi.string().required(),
-  email: Joi.string().email().required(),
+  firstName: Joi.string().alter({
+    create: (schema) => schema.required(),
+    update: (schema) => schema.optional(),
+  }),
+  lastName: Joi.string().alter({
+    create: (schema) => schema.required(),
+    update: (schema) => schema.optional(),
+  }),
+  email: Joi.string()
+    .email()
+    .alter({
+      create: (schema) => schema.required(),
+      update: (schema) => schema.optional(),
+    }),
   social: Joi.object({
     facebook: Joi.string().optional(),
     twitter: Joi.string().optional(),
@@ -15,6 +26,9 @@ const userInputValidator = Joi.object({
     website: Joi.string().optional(),
   }).optional(),
 });
+
+const createUserValidator = userInputValidator.tailor('create');
+const updateUserValidator = userInputValidator.tailor('update');
 
 // plugin to instantiate Prisma Client
 const usersPlugin: Hapi.Plugin<null> = {
@@ -28,7 +42,7 @@ const usersPlugin: Hapi.Plugin<null> = {
         handler: createUserHandler,
         options: {
           validate: {
-            payload: userInputValidator,
+            payload: createUserValidator,
           },
         },
       },
@@ -53,6 +67,19 @@ const usersPlugin: Hapi.Plugin<null> = {
             params: Joi.object({
               userId: Joi.number().integer(),
             }),
+          },
+        },
+      },
+      {
+        method: 'PUT',
+        path: '/users/{userId}',
+        handler: updateUserHandler,
+        options: {
+          validate: {
+            params: Joi.object({
+              userId: Joi.number().integer(),
+            }),
+            payload: updateUserValidator,
           },
         },
       },
@@ -123,6 +150,32 @@ async function deleteUserHandler(req: Hapi.Request, h: Hapi.ResponseToolkit) {
     });
 
     return h.response().code(204);
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        case 'P2025':
+          return badRequest();
+      }
+    }
+
+    console.error(err);
+    return badImplementation();
+  }
+}
+
+async function updateUserHandler(req: Hapi.Request, h: Hapi.ResponseToolkit) {
+  const prisma = req.server.app.prisma;
+  const userId = Number(req.params.userId);
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: req.payload as Partial<UserInput>,
+    });
+
+    return h.response(updatedUser).code(200);
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       switch (err.code) {
