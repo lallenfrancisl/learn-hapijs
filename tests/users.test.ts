@@ -75,4 +75,24 @@ describe('ROUTE /users/', () => {
     const user = JSON.parse(response.payload);
     expect(user.id).toBe(userId);
   });
+
+  // test if deleting a user that does not exist errs
+  test('delete a user that does not exist', async () => {
+    const res = await server.inject({
+      method: 'DELETE',
+      url: `/users/9999999999`,
+    });
+
+    expect(res.statusCode).toEqual(400);
+  });
+
+  // test if deleting a user that exist executes successfully
+  test('delete a user that exist', async () => {
+    const res = await server.inject({
+      method: 'DELETE',
+      url: `/users/${userId}`,
+    });
+
+    expect(res.statusCode).toEqual(204);
+  });
 });
