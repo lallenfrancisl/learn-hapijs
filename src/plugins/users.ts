@@ -1,7 +1,8 @@
 import Hapi from '@hapi/hapi';
 import Joi from '@hapi/joi';
 import { UserInput } from '../models/User';
-import { badImplementation } from '@hapi/boom';
+import { badImplementation, badRequest } from '@hapi/boom';
+import { Prisma } from '@prisma/client';
 
 const userInputValidator = Joi.object({
   firstName: Joi.string().required(),
@@ -35,6 +36,18 @@ const usersPlugin: Hapi.Plugin<null> = {
         method: 'GET',
         path: '/users/{userId}',
         handler: getUserHandler,
+        options: {
+          validate: {
+            params: Joi.object({
+              userId: Joi.number().integer(),
+            }),
+          },
+        },
+      },
+      {
+        method: 'DELETE',
+        path: '/users/{userId}',
+        handler: deleteUserHandler,
         options: {
           validate: {
             params: Joi.object({
@@ -95,6 +108,31 @@ async function getUserHandler(req: Hapi.Request, h: Hapi.ResponseToolkit) {
   } catch (err) {
     console.error(err);
     return badImplementation('something went wrong in the server');
+  }
+}
+
+async function deleteUserHandler(req: Hapi.Request, h: Hapi.ResponseToolkit) {
+  const prisma = req.server.app.prisma;
+  const userId = Number(req.params.userId);
+
+  try {
+    await prisma.user.delete({
+      where: {
+        id: userId,
+      },
+    });
+
+    return h.response().code(204);
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        case 'P2025':
+          return badRequest();
+      }
+    }
+
+    console.error(err);
+    return badImplementation();
   }
 }
 
