@@ -6,3 +6,7 @@ export interface AuthenticateInput {
 export interface LoginInput {
   email: string;
 }
+
+export interface APITokenPayload {
+  tokenId: number;
+}

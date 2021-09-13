@@ -1,10 +1,17 @@
 import Hapi from '@hapi/hapi';
-import { TokenType } from '@prisma/client';
+import { TokenType, UserRole } from '@prisma/client';
 import Joi from '@hapi/joi';
-import { AuthenticateInput, LoginInput } from '../models/Auth';
+import { AuthenticateInput, LoginInput, APITokenPayload } from '../models/Auth';
 import { unauthorized, badImplementation } from '@hapi/boom';
 import { add } from 'date-fns';
 import jwt from 'jsonwebtoken';
+import { request } from 'http';
+
+const API_AUTH_STRATEGY = 'API';
+const JWT_SECRET = process.env.JWT_SECRET || 'JWT_SECRET';
+const JWT_ALGORITHM = 'HS256';
+const AUTH_TOKEN_EXP_HOURS = 12;
+const EMAIL_TOKEN_EXP_MINS = 10;
 
 const authPlugin: Hapi.Plugin<null> = {
   name: 'app/auth',
@@ -39,10 +46,73 @@ const authPlugin: Hapi.Plugin<null> = {
         },
       },
     ]);
+
+    server.auth.strategy(API_AUTH_STRATEGY, 'jwt', {
+      key: JWT_SECRET,
+      verifyOptions: { algorithms: [JWT_ALGORITHM] },
+      validate: validateApiToken,
+    });
+
+    server.auth.default(API_AUTH_STRATEGY);
   },
 };
 
-const EMAIL_TOKEN_EXP_MINS = 10;
+const apiTokenSchema = Joi.object({
+  tokenId: Joi.number().integer().required(),
+});
+
+async function validateApiToken(
+  decoded: APITokenPayload,
+  req: Hapi.Request,
+  _: Hapi.ResponseToolkit
+) {
+  const { prisma } = req.server.app;
+  const { tokenId } = decoded;
+  const { error } = apiTokenSchema.validate(decoded);
+
+  if (error) {
+    req.log(['error', 'auth'], `API token error: ${error.message}`);
+    return { isValid: false };
+  }
+
+  try {
+    const fetchedToken = await prisma.token.findUnique({
+      where: {
+        id: tokenId,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!(fetchedToken?.valid || fetchedToken?.valid)) {
+      return { isValid: false, errorMessage: 'Invalid token' };
+    }
+
+    const teacherOfCourses = await prisma.courseEnrollment.findMany({
+      where: {
+        userId: fetchedToken.userId,
+        role: UserRole.TEACHER,
+      },
+      select: {
+        courseId: true,
+      },
+    });
+
+    return {
+      isValid: true,
+      credentials: {
+        tokenId: decoded.tokenId,
+        userId: fetchedToken.userId,
+        isAdmin: fetchedToken.user.isAdmin,
+        teacherOf: teacherOfCourses.map((course: any) => course.courseId),
+      },
+    };
+  } catch (err) {
+    req.log(['error', 'auth', 'db'], error);
+    return { isValid: false };
+  }
+}
 
 async function loginHandler(req: Hapi.Request, h: Hapi.ResponseToolkit) {
   const { prisma, sendEmailToken } = req.server.app;
@@ -86,10 +156,6 @@ async function loginHandler(req: Hapi.Request, h: Hapi.ResponseToolkit) {
 function generateEmailToken(): string {
   return Math.floor(10000000 + Math.random() * 90000000).toString();
 }
-
-const JWT_SECRET = process.env.JWT_SECRET || 'JWT_SECRET';
-const JWT_ALGORITHM = 'HS256';
-const AUTH_TOKEN_EXP_HOURS = 12;
 
 async function authHandler(req: Hapi.Request, h: Hapi.ResponseToolkit) {
   const { prisma } = req.server.app;
