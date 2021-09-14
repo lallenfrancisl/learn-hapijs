@@ -1,17 +1,10 @@
 import Hapi from '@hapi/hapi';
 import { TokenType, UserRole } from '@prisma/client';
 import Joi from '@hapi/joi';
-import { AuthenticateInput, LoginInput, APITokenPayload } from '../models/Auth';
+import { AuthenticateInput, LoginInput, APITokenPayload, JWT_SECRET, API_AUTH_STRATEGY, JWT_ALGORITHM, EMAIL_TOKEN_EXP_MINS, AUTH_TOKEN_EXP_HOURS } from '../models/Auth';
 import { unauthorized, badImplementation } from '@hapi/boom';
 import { add } from 'date-fns';
 import jwt from 'jsonwebtoken';
-import { request } from 'http';
-
-const API_AUTH_STRATEGY = 'API';
-const JWT_SECRET = process.env.JWT_SECRET || 'JWT_SECRET';
-const JWT_ALGORITHM = 'HS256';
-const AUTH_TOKEN_EXP_HOURS = 12;
-const EMAIL_TOKEN_EXP_MINS = 10;
 
 const authPlugin: Hapi.Plugin<null> = {
   name: 'app/auth',

@@ -13,7 +13,7 @@ model User {
   firstName String?
   lastName  String?
   social    Json?
-  isAdmin Boolean
+  isAdmin Boolean? @default(false)
 
   // Relation fields
   courses     CourseEnrollment[]

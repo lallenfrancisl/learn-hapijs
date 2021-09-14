@@ -3,6 +3,8 @@ import Joi from '@hapi/joi';
 import { UserInput } from '../models/User';
 import { badImplementation, badRequest } from '@hapi/boom';
 import { Prisma } from '@prisma/client';
+import { isRequestedUserOrAdmin } from '../helpers/auth';
+import { API_AUTH_STRATEGY } from '../models/Auth';
 
 const userInputValidator = Joi.object({
   firstName: Joi.string().alter({
@@ -41,6 +43,7 @@ const usersPlugin: Hapi.Plugin<null> = {
         path: '/users',
         handler: createUserHandler,
         options: {
+          pre: [isRequestedUserOrAdmin],
           validate: {
             payload: createUserValidator,
           },
@@ -51,6 +54,7 @@ const usersPlugin: Hapi.Plugin<null> = {
         path: '/users/{userId}',
         handler: getUserHandler,
         options: {
+          pre: [isRequestedUserOrAdmin],
           validate: {
             params: Joi.object({
               userId: Joi.number().integer(),
@@ -63,6 +67,7 @@ const usersPlugin: Hapi.Plugin<null> = {
         path: '/users/{userId}',
         handler: deleteUserHandler,
         options: {
+          pre: [isRequestedUserOrAdmin],
           validate: {
             params: Joi.object({
               userId: Joi.number().integer(),
@@ -75,6 +80,7 @@ const usersPlugin: Hapi.Plugin<null> = {
         path: '/users/{userId}',
         handler: updateUserHandler,
         options: {
+          pre: [isRequestedUserOrAdmin],
           validate: {
             params: Joi.object({
               userId: Joi.number().integer(),
