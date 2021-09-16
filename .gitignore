@@ -3,3 +3,5 @@ dist/
 *.env*
 yarn-error.log
 prisma/migrations
+.DS_Store
+logfile
