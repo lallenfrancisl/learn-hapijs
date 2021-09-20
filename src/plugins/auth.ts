@@ -1,6 +1,6 @@
 import Hapi from '@hapi/hapi';
 import { TokenType, UserRole } from '@prisma/client';
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import { AuthenticateInput, LoginInput, APITokenPayload, JWT_SECRET, API_AUTH_STRATEGY, JWT_ALGORITHM, EMAIL_TOKEN_EXP_MINS, AUTH_TOKEN_EXP_HOURS } from '../models/Auth';
 import { unauthorized, badImplementation } from '@hapi/boom';
 import { add } from 'date-fns';
@@ -114,7 +114,7 @@ async function loginHandler(req: Hapi.Request, h: Hapi.ResponseToolkit) {
   const tokenExpiration = add(new Date(), { minutes: EMAIL_TOKEN_EXP_MINS });
 
   try {
-    const createdToken = await prisma.token.create({
+    await prisma.token.create({
       data: {
         emailToken,
         type: TokenType.EMAIL,
@@ -168,7 +168,7 @@ async function authHandler(req: Hapi.Request, h: Hapi.ResponseToolkit) {
       return unauthorized();
     }
 
-    if (fetchedEmailToken.expiration < Date.now()) {
+    if (fetchedEmailToken.expiration < new Date()) {
       return unauthorized('Token expired');
     }
 

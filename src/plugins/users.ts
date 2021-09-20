@@ -1,5 +1,5 @@
 import Hapi from '@hapi/hapi';
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import { UserInput } from '../models/User';
 import { badImplementation, badRequest } from '@hapi/boom';
 import { Prisma } from '@prisma/client';
