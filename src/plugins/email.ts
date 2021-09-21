@@ -13,7 +13,7 @@ const emailPlugin = {
   name: 'app/email',
   register: async function (server: Hapi.Server) {
     if (!process.env.SENDGRID_API_KEY) {
-      console.error(
+      console.log(
         `The SENDGRID_API_KEY env var must be set, otherwise the API won't be able to send emails.`,
         `Using debug mode which logs the email tokens instead.`
       );
