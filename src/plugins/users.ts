@@ -4,7 +4,6 @@ import { UserInput } from '../models/User';
 import { badImplementation, badRequest } from '@hapi/boom';
 import { Prisma } from '@prisma/client';
 import { isRequestedUserOrAdmin } from '../helpers/auth';
-import { API_AUTH_STRATEGY } from '../models/Auth';
 
 const userInputValidator = Joi.object({
   firstName: Joi.string().alter({
