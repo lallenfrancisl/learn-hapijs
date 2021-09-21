@@ -98,11 +98,11 @@ async function validateApiToken(
         tokenId: decoded.tokenId,
         userId: fetchedToken.userId,
         isAdmin: fetchedToken.user.isAdmin,
-        teacherOf: teacherOfCourses.map((course: any) => course.courseId),
+        teacherOf: teacherOfCourses.map((course) => course.courseId),
       },
     };
   } catch (err) {
-    req.log(['error', 'auth', 'db'], error);
+    req.log(['error', 'auth', 'db'], err);
     return { isValid: false };
   }
 }
