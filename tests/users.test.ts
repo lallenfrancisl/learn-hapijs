@@ -1,11 +1,15 @@
 import { createServer } from '../src/server';
-import Hapi from '@hapi/hapi';
+import Hapi, { AuthCredentials } from '@hapi/hapi';
+import { API_AUTH_STRATEGY } from '../src/models/Auth';
+import { createUserCredentials } from '../test-helpers/auth-helpers';
 
 describe('ROUTE /users/', () => {
-  let server: Hapi.Server;
+  let server: Hapi.Server, testUserCreds: AuthCredentials, testAdminCreds: AuthCredentials;
 
   beforeAll(async () => {
     server = await createServer();
+    testUserCreds = await createUserCredentials(server.app.prisma, false);
+    testAdminCreds = await createUserCredentials(server.app.prisma, true);
   });
 
   afterAll(async () => {
@@ -19,6 +23,10 @@ describe('ROUTE /users/', () => {
     const res = await server.inject({
       method: 'POST',
       url: '/users',
+      auth: {
+        strategy: API_AUTH_STRATEGY,
+        credentials: testAdminCreds,
+      },
       payload: {
         firstName: 'test-first-name',
         lastName: 'test-last-name',
@@ -67,13 +75,17 @@ describe('ROUTE /users/', () => {
   test('get user details', async () => {
     const response = await server.inject({
       method: 'GET',
-      url: `/users/${userId}`,
+      url: `/users/${testUserCreds.userId}`,
+      auth: {
+        strategy: API_AUTH_STRATEGY,
+        credentials: testUserCreds
+      }
     });
 
     expect(response.statusCode).toEqual(200);
 
     const user = JSON.parse(response.payload);
-    expect(user.id).toBe(userId);
+    expect(user.id).toBe(testUserCreds.userId);
   });
 
   // test if updating a non-existent user errs
